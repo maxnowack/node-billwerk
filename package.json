@@ -29,7 +29,7 @@
     "chai": "3.x.x",
     "eslint": "^3.9.1",
     "eslint-config-airbnb": "^14.0.0",
-    "eslint-plugin-babel": "^4.0.0",
+    "eslint-plugin-babel": "^4.1.0",
     "eslint-plugin-import": "^2.0.1",
     "mocha": "^3.1.2",
     "nodemon": "~1.11.0"
