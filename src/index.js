@@ -1,50 +1,53 @@
-import { isEmpty, extend } from 'lodash'
-import { request } from './helpers'
+import { request } from './'
 
-export class BillwerkAPI {
+export default class BillwerkAPI {
   _getApiUrl(short = false) {
     return `https://${this.billwerkHost}${!short ? this.apiPath : ''}`
   }
+
   _checkAuth(force = false) {
     return new Promise((resolve, reject) => {
-      if (!(isEmpty(this._authToken) || force)) resolve(this._authToken)
+      if (this._authToken && !force) {
+        resolve(this._authToken)
+        return
+      }
       request
         .post(`${this._getApiUrl(true)}/oauth/token`)
+        .type('application/x-www-form-urlencoded')
         .auth(this.clientId, this.clientSecret)
         .send({ grant_type: 'client_credentials' })
-        .catch(reject)
         .then((response) => {
           if (response.status !== 200) return reject(response)
-          this._authToken = response.data.access_token
+          this._authToken = response.body.access_token
           return resolve(this._authToken)
-        })
+        }, error => console.log(error))
     })
   }
-  _call(action, method = 'GET', options = {}, skip, take = 500) {
-    return new Promise((resolve, reject) => this._checkAuth()
-      .catch(reject)
-      .resolve((token) => {
-        options.headers = extend(options.headers || {}, {
+
+  _call(action, method = 'GET', options = {}, skip, take = 500, oldData = []) {
+    return this._checkAuth()
+      .then((token) => {
+        options.headers = Object.assign({}, options.headers, {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json; charset=utf-8',
         })
         let tmpQuery = options.query ? `${options.query}&` : '?'
         tmpQuery += skip ? `skip=${skip}&take=${take}` : `take=${take}`
-        request[method.toLowerCase()](this._getApiUrl() + action + tmpQuery)
+        return request[method.toLowerCase()](this._getApiUrl() + action + tmpQuery)
           .set(options.headers)
           .send(options.data)
-          .catch(reject)
           .then((response) => {
             const data = response.body
-            if (data && data.length >= take) {
-              this._call(action, method, options, (skip || 0) + 500, take)
-                .catch(reject)
-                .then((newData) => resolve(data.concat(newData)))
+            if (!Array.isArray(data)) return data
+            if (!data || !data.length) return oldData
+            const idExists = !!oldData.filter(item => item.Id === data[0].Id).length
+            if (idExists) return oldData
+            if (data.length >= take) {
+              return this._call(action, method, options, (skip || 0) + 500, take, oldData.concat(data))
             }
-            return resolve(data)
+            return oldData.concat(data)
           })
       })
-    )
   }
 
   constructor(clientId, clientSecret, billwerkHost = 'sandbox.billwerk.com', apiPath = '/api/v1') {
@@ -115,6 +118,11 @@ export class BillwerkAPI {
     return this._call(`/Contracts/${contractId}/Usage`, 'POST', { data })
   }
 
+  // /Contracts/:ContractId/Usage
+  getContractDiscountSubscriptions(contractId) {
+    return this._call(`/Contracts/${contractId}/DiscountSubscriptions`, 'GET')
+  }
+
   // /Contracts/:ContractId/Usage/:UsageId
   deleteContractUsage(contractId, usageId) {
     return this._call(`/Contracts/${contractId}/Usage/${usageId}`, 'GET')
@@ -128,6 +136,10 @@ export class BillwerkAPI {
     return this._call(`/Contracts/${contractId}/ComponentSubscriptions`, 'POST', { data })
   }
 
+  getContractComponent(id) {
+    return this._call(`/Components/${id}`, 'GET')
+  }
+
   // /Contracts/:ContractId/SelfServiceToken/
   getContractSelfServiceToken(contractId) {
     return this._call(`/Contracts/${contractId}/SelfServiceToken`, 'GET')
@@ -135,7 +147,7 @@ export class BillwerkAPI {
 
   // /Invoices
   getInvoices(customerId) {
-    return this._call('/Invoices', 'GET', customerId && { data: { customerId } })
+    return this._call('/Invoices', 'GET', customerId ? { data: { customerId } } : {})
   }
 
   // /Invoices/:InvoiceId
@@ -206,5 +218,24 @@ export class BillwerkAPI {
   // /Webhooks/:WebhookId
   deleteWebhook(webhookId) {
     return this._call(`/webhooks/${webhookId}`, 'DELETE')
+  }
+
+  // /Discounts
+  getDiscounts() {
+    return this._call('/Discounts', 'GET')
+  }
+
+  // /Discounts/
+  getDiscountByID(id) {
+    return this._call(`/Discounts/${id}`, 'GET')
+  }
+
+  // /Discounts
+  getPaymentTransactions() {
+    return this._call('/PaymentTransactions', 'GET')
+  }
+
+  getPaymentTransaction(id) {
+    return this._call(`/PaymentTransactions/${id}`, 'GET')
   }
 }
