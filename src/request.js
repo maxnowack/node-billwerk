@@ -1,4 +1,4 @@
-import superagentPromisePlugin from 'superagent-promise-plugin'
-import superagent from 'superagent'
+import superagentPromisePlugin from 'superagent-promise-plugin';
+import superagent from 'superagent';
 
-export default superagentPromisePlugin.patch(superagent)
+export default superagentPromisePlugin.patch(superagent);
