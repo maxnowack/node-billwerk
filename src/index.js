@@ -1,4 +1,4 @@
-import { request } from './';
+import request from './request';
 
 export default class BillwerkAPI {
   getApiUrl(short = false) {
@@ -195,6 +195,10 @@ export default class BillwerkAPI {
   // /PlanVariants
   getPlanVariants() {
     return this.call('/PlanVariants', 'GET');
+  }
+
+  getPlanVariant(planVariantId) {
+    return this.call(`/PlanVariants/${planVariantId}`, 'GET');
   }
 
   deleteVariant(planVariantId) {
