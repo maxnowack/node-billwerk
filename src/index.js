@@ -1,26 +1,26 @@
 import request from './request';
 
 export default class BillwerkAPI {
+  static request = request
+
   getApiUrl(short = false) {
     return `https://${this.billwerkHost}${!short ? this.apiPath : ''}`;
   }
 
   checkAuth(force = false) {
-    return new Promise((resolve, reject) => {
-      if (this.authToken && !force) {
-        resolve(this.authToken);
-        return;
-      }
-      request
-        .post(`${this.getApiUrl(true)}/oauth/token`)
-        .type('application/x-www-form-urlencoded')
-        .auth(this.clientId, this.clientSecret)
-        .send({ grant_type: 'client_credentials' })
-        .then((response) => {
-          if (response.status !== 200) return reject(response);
-          this.authToken = response.body.access_token;
-          return resolve(this.authToken);
-        });
+    if (this.authToken && !force) {
+      return new Promise(r => r(this.authToken));
+    }
+    return BillwerkAPI.request(`${this.getApiUrl(true)}/oauth/token`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+      auth: { user: this.clientId, pass: this.clientSecret },
+    }).then((data) => {
+      this.authToken = data.access_token;
+      return this.authToken;
     });
   }
 
@@ -33,12 +33,13 @@ export default class BillwerkAPI {
         });
         let tmpQuery = options.query ? `${options.query}&` : '?';
         tmpQuery += skip ? `skip=${skip}&take=${take}` : `take=${take}`;
-        return request[method.toLowerCase()](this.getApiUrl() + action + tmpQuery)
-          .set(headers)
-          .send(options.data);
+        return BillwerkAPI.request(this.getApiUrl() + action + tmpQuery, {
+          method,
+          headers,
+          body: options.data,
+        });
       })
-      .then((response) => {
-        const data = response.body;
+      .then((data) => {
         if (!Array.isArray(data)) return data;
         if (!data || !data.length) return oldData;
         const idExists = !!oldData.filter(item => item.Id === data[0].Id).length;
