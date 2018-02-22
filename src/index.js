@@ -244,3 +244,5 @@ export default class BillwerkAPI {
     return this.call(`/PaymentTransactions/${id}`, 'GET');
   }
 }
+
+exports = BillwerkAPI;
