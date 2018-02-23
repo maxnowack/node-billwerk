@@ -237,18 +237,29 @@ export default class BillwerkAPI {
     return this.call('/Discounts', 'GET');
   }
 
-  // /Discounts/
+  // /Discounts/:id
   getDiscountByID(id) {
     return this.call(`/Discounts/${id}`, 'GET');
   }
 
-  // /Discounts
+  // /PaymentTransactions
   getPaymentTransactions() {
     return this.call('/PaymentTransactions', 'GET');
   }
 
+  // /PaymentTransactions/:id
   getPaymentTransaction(id) {
     return this.call(`/PaymentTransactions/${id}`, 'GET');
+  }
+
+  // /Dunnings
+  getDunnings() {
+    return this.call('/Dunnings', 'GET');
+  }
+
+  // /Dunnings/:id
+  getDunning(id) {
+    return this.call(`/Dunnings/${id}`, 'GET');
   }
 }
 
