@@ -145,6 +145,11 @@ export default class BillwerkAPI {
     return this.call(`/Contracts/${contractId}/SelfServiceToken`, 'GET');
   }
 
+  // /Subscriptions
+  getSubscriptions(data) {
+    return this.call('/Subscriptions', 'GET', { data });
+  }
+
   // /Invoices
   getInvoices(customerId) {
     return this.call('/Invoices', 'GET', customerId ? { data: { customerId } } : {});
