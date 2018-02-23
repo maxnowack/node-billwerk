@@ -16,7 +16,7 @@
   },
   "author": "Max Nowack <max@unsou.de>",
   "files": [
-    "dist/*"
+    "dist"
   ],
   "eslintConfig": {
     "extends": [
