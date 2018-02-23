@@ -201,7 +201,8 @@ export default class BillwerkAPI {
     return this.call(`/PlanVariants/${planVariantId}`, 'GET');
   }
 
-  deleteVariant(planVariantId) {
+  deleteVariant = Id => this.deletePlanVariant(Id)
+  deletePlanVariant(planVariantId) {
     return this.call(`/planVariants/${planVariantId}`, 'DELETE');
   }
 
