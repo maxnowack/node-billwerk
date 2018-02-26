@@ -192,10 +192,18 @@ export default class BillwerkAPI {
     return this.call('/PlanGroups', 'GET');
   }
 
+  getPlanGroup(planGroupId) {
+    return this.call(`/PlanGroups/${planGroupId}`, 'GET');
+  }
+
 
   // /Plans
   getPlans() {
     return this.call('/Plans', 'GET');
+  }
+
+  getPlan(planId) {
+    return this.call(`/Plans/${planId}`, 'GET');
   }
 
   // /PlanVariants
