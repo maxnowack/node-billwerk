@@ -1,4 +1,15 @@
+import qs from 'qs';
 import request from './request';
+
+const getQueryString = (qry) => {
+  let query = '';
+  if (typeof qry === 'string') {
+    query += qry;
+  } else if (qry) {
+    query += qs.stringify(qry);
+  }
+  return query ? `?${query}` : '';
+};
 
 export default class BillwerkAPI {
   static request = request
@@ -31,7 +42,8 @@ export default class BillwerkAPI {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json; charset=utf-8',
         });
-        let tmpQuery = options.query ? `${options.query}&` : '?';
+        const queryString = getQueryString(options.query);
+        let tmpQuery = queryString ? `${queryString}&` : '?';
         tmpQuery += skip ? `skip=${skip}&take=${take}` : `take=${take}`;
         return BillwerkAPI.request(this.getApiUrl() + action + tmpQuery, {
           method,
