@@ -147,8 +147,8 @@ export default class BillwerkAPI {
   }
 
   // /Subscriptions
-  getSubscriptions(data) {
-    return this.call('/Subscriptions', 'GET', { data });
+  getSubscriptions(query) {
+    return this.call('/Subscriptions', 'GET', { query });
   }
 
   // /Invoices

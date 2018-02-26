@@ -4,7 +4,7 @@ import basicAuth from 'basic-auth-header';
 
 export default (url, options) => {
   const method = (options.method || 'GET').toUpperCase();
-  const queryString = method === 'GET' && options.data ? `?${qs.stringify(options.date)}` : '';
+  const queryString = method === 'GET' && options.query ? `?${qs.stringify(options.query)}` : '';
 
   return fetch(`${url}${queryString}`, {
     method,
